@@ -1,11 +1,4 @@
 
-This distribution is just a reworked version of the c. 1989 Berkeley
-espresso source code.  All I've done is cut the number of files down
-to just what is required for a modern POSIXy OS and made those files
-more ISO-C compliant.  This should make building espresso a little
-easier in these more standards compliant times.
+The original Espresso code comes from the 1989 Berkeley code (https://embedded.eecs.berkeley.edu/pubs/downloads/espresso/index.htm). See the COPYING file for original code license.
 
-See the file COPYING for the original code licence.  All kudos to the
-original authors.
-
-- Andrew
+This distribution is just a C99 port of the excellent work made by Andrew to simplify and port to C89 standards (https://github.com/Rupan/espresso/tree/master/jni/espresso).
