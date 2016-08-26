@@ -129,7 +129,8 @@ pset_family unate_complement(pset_family A)
     pset_family Abar;
     register pset p, p1, prestrict;
     register int i;
-    int max_i, min_set_ord, j;
+    int max_i, j;
+    unsigned int min_set_ord;
 
     /* Check for no sets in the matrix -- complement is the universe */
     if (A->count == 0) {
