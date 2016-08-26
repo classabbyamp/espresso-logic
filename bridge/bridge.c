@@ -11,7 +11,7 @@
 char ** get_solution(pPLA);
 void add_to_buffer(char **, unsigned int *, unsigned int*, char);
 
-char ** minimize(char ** data, unsigned int length) {
+char ** run_espresso(char ** data, unsigned int length) {
   pPLA PLA;
   bool error;
   cost_t cost;
@@ -26,7 +26,7 @@ char ** minimize(char ** data, unsigned int length) {
    espresso reads either from a file or from stdin, so we
    start by filling up the stdin buffer with our PLA data
    */
-  for(int i = 0; i < length; ++i) {
+  for(unsigned int i = 0; i < length; ++i) {
     fwrite(data[i], strlen(data[i]), 1, stdin);
   }
 
@@ -111,7 +111,7 @@ char ** get_solution(pPLA PLA) {
      if (solutions[current_solution] == NULL) {
        fprintf(stderr, "[espresso-logic-minimizer] FATAL: memory allocation failed\n");
 
-       for(int j = 0; j < current_solution; j++) free(solutions[j]);
+       for(unsigned int j = 0; j < current_solution; j++) free(solutions[j]);
        free(buffer);
        return NULL;
      }

@@ -31,7 +31,10 @@
 # Debug files
 *.dSYM/
 *.su
+*.log
 
 # Deployment directories
-lib/
-bin/
+build/
+
+# Dependencies
+node_modules/
