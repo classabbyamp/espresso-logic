@@ -1,4 +1,5 @@
 #include "espresso.h"
+#include "strdup.h"
 
 int **find_pairing_cost(pPLA PLA, int strategy);
 
@@ -243,8 +244,8 @@ void find_optimal_pairing(pPLA PLA, int strategy)
 int **find_pairing_cost(pPLA PLA, int strategy)
 {
     int var1, var2, **cost_array;
-    int i, j, xnum_binary_vars, xnum_vars, *xpart_size, cost = 0;
-    pcover T, Fsave, Dsave, Rsave;
+    int i, j, xnum_binary_vars = 0, xnum_vars = 0, *xpart_size = NULL, cost = 0;
+    pcover T, Fsave = NULL, Dsave = NULL, Rsave = NULL;
     pset mask;
 /*    char *s;*/
 
