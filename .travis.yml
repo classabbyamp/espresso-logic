@@ -9,12 +9,12 @@ addons:
     - gcc-4.9
     - g++-4.9
 before_install:
-  - export CC="gcc-4.9 -std=c99" CXX="g++-4.9"
+- export CC="gcc-4.9 -std=c99" CXX="g++-4.9"
 deploy:
   provider: npm
-  email: scottinet@kuzzle.io
+  email: seb.cottinet@gmail.com
   api_key:
-    secure: ukww5o2P020UO2wuJ8HOcSF4sc45+vAoZGJo713oEdvuncoQh0rCfIolIElPBKJySbrPD01Mi0kyIMRoUusb1B8CcdfdsTQMgYAszxDH3xpEFstp/uaIrBuPe6BLaJr3BUm/2PIUnNn6u+BLqxGhDod20S0SkCDNt5MW+CXtlNirZHqVdRSrNsNNVst5OxahtVEH1YIkwL9/Qu8rPzU/cBOEm0TIFjAH2XK8vQwe4Tf+6Kq2j0sEvjcUvkZ6NSPvwkBh3OXcQmp8n47LD+Uafs3g6XJ/joZu0mkYHq5UMCjthURvnEozqaUL6AizCo8fSFZj4Lb4qYRFxnyvhgcn66ttqp/kx6bb4+h0psIoCYMNHxKjXGSMJju5/qfOFxs3eUN28RIOygqEB/j40lwgvrQ5ejkfS9mDYO/nmKA6/XTpXY4SJGsm8GMSGxmDniNJL8T9+oNeQ4zhVvklKaKVaCFfhPKdwTmc7zAV2ZjXLpVTjh3Aw1IWAtGTvNfYJ4LyakOdX5uk6q3LRW0QHZe1K4fZmy6p/VXi3kp+N3ETsYzeKsI3UUfZXmXfj+TtI4qCDX51RowJxhDdPR/EY4mSKc2qE4SrZMBMX0v766b1J1rCihVhM53ISQOUrArIECG5+rLs/8cxFRoT0/y5qTMrWJYyehKDoxCTWREd7EhfPws=
+    secure: DQAx5lLwuFnI+2PXteV1/FHkX15+nLMmdXYvwvSOLUtJy0q1Qv0JOkugw4z29ZW5ewvWRfABRt6BH/XQsmT/q9zStFQAWLlPmFM8fX4H1r37C6SaAN7lOkQAN4vtI74TKH9DrbTppTq4j7TeBwu94ELc+lNHxCT/XkjhR9lRO4mLzLYhgd/ORNphDntjJ4gSlJMNyvEPHutx2le1MCilJQy0YSGRNPRuH4w+tK8xvNDn64A/czD2aXsS7DxH66vQrB2qDV7ZBlAfZ+E2h3Bux8C/p+uc3mCwSIG0rFxI7/vhwAcGFvVjbJj24f0B+lwZ2ikYfeUr/LI35WMt2XS0k2Mj9VUTZQslrXr8TMjNYkO2ip6coDSxYltEfgFUiGkQy/sD6CTOmgXJ3tP9KirP8skuTiwvHMUT6BwhQCneEuIa8razS/yJ8mcz45buh3OFZBgcDuV1cWyN6lw4YJIs250S5t+6t1bVYYxkCuDMDeA5or3g41YD4yftaOUMf7CcrgcfmMycwrwkljvIvdPlkdabm5Jzs6N7PFhJm0yEgwA1FNncIwPQAU0OEPWJVE4lCuthkjz/v0+1rA6etckHzKBd0D58he7mengYvqTqbQ07731OMNSqG32lLCNYVOXQETPWr1l2pO+MykRcOJDuFYffAJGg9JO329xldvlk+cY=
   on:
-    branch: master
     repo: scottinet/espresso-logic-minimizer
+    branch: master
