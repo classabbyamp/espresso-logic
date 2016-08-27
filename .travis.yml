@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-- '6'
 - '4'
 addons:
   apt:
@@ -10,7 +9,7 @@ addons:
     - gcc-4.9
     - g++-4.9
 before_install:
-- export CC="gcc-4.9" CXX="g++-4.9"
+- export CC="gcc-5.4" CXX="g++-5.4"
 deploy:
   provider: npm
   email: scottinet@kuzzle.io
