@@ -8,9 +8,8 @@ addons:
     packages:
     - gcc-4.9
     - g++-4.9
-env:
-  - CC="gcc-4.9 -std=c99" 
-  - CXX="g++-4.9"
+before_install:
+  - export CC="gcc-4.9 -std=c99" CXX="g++-4.9"
 deploy:
   provider: npm
   email: scottinet@kuzzle.io
