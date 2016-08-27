@@ -1,4 +1,5 @@
 {
+  "name": "espresso-logic-minimizer",
   "main": "index.js",
   "version": "1.0.0",
   "author": "Sebastien Cottinet (https://github.com/scottinet)",
