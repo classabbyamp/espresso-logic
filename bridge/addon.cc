@@ -6,10 +6,21 @@
 extern "C" char ** run_espresso(char ** data, unsigned int length);
 
 NAN_METHOD(minimize) {
-  v8::Local<v8::Array> array = info[0].As<v8::Array>();
+  v8::Local<v8::Array>
+    array = info[0].As<v8::Array>(),
+    returnValue = Nan::New<v8::Array>();
   unsigned int length = array->Length();
-  char ** truthTable = new char*[length];
-  v8::Local<v8::Array> returnValue = Nan::New<v8::Array>();
+  char
+    **truthTable,
+    **result;
+
+  // returns an empty array if no input is provided
+  if (length == 0) {
+    info.GetReturnValue().Set(returnValue);
+    return;
+  }
+
+  truthTable = new char*[length];
 
   for(unsigned int i = 0; i < length; ++i) {
     v8::Local<v8::String> src = array->Get(i)->ToString();
@@ -18,7 +29,7 @@ NAN_METHOD(minimize) {
     strcpy(truthTable[i], *val);
   }
 
-  char ** result = run_espresso(truthTable, length);
+  result = run_espresso(truthTable, length);
 
   if (result != NULL) {
     for(unsigned int i = 0; result[i] != NULL; ++i) {
