@@ -12,6 +12,7 @@ char ** get_solution(pPLA);
 void add_to_buffer(char **, unsigned int *, unsigned int*, char);
 
 char ** run_espresso(char ** data, unsigned int length) {
+  FILE * tempPLA = tmpfile();
   pPLA PLA;
   bool error;
   cost_t cost;
@@ -22,19 +23,20 @@ char ** run_espresso(char ** data, unsigned int length) {
     return NULL;
   }
 
-  /*
-   espresso reads either from a file or from stdin, so we
-   start by filling up the stdin buffer with our PLA data
-   */
   for(unsigned int i = 0; i < length; ++i) {
-    fwrite(data[i], strlen(data[i]), 1, stdin);
+    fputs(data[i], tempPLA);
+    fputc('\n', tempPLA);
   }
 
-  if (read_pla(stdin, TRUE, TRUE, FD_type, &PLA) == EOF) {
+  rewind(tempPLA);
+
+  if (read_pla(tempPLA, TRUE, TRUE, FD_type, &PLA) == EOF) {
+    fclose(tempPLA);
     return NULL;
   }
 
-  PLA->filename = "(stdin)";
+  // makes sure free() won't crash on this variable
+  PLA->filename = NULL;
 
   fold = sf_save(PLA->F);
   PLA->F = espresso(PLA->F, PLA->D, PLA->R);
@@ -54,6 +56,7 @@ char ** run_espresso(char ** data, unsigned int length) {
   setdown_cube();             /* free the cube/cdata structure data */
   sf_cleanup();               /* free unused set structures */
   sm_cleanup();               /* sparse matrix cleanup */
+  fclose(tempPLA);
 
   return result;
 }

@@ -204,244 +204,262 @@ void read_cube(register FILE *fp, pPLA PLA) {
     return;
 }
 
-void parse_pla(FILE *fp, pPLA PLA)
-{
-    int i, var, ch, np, last;
-    char word[256];
+void parse_pla(FILE *fp, pPLA PLA) {
+  int i, var, ch, np, last;
+  char word[256];
 
-    lineno = 1;
-    line_length_error = FALSE;
+  lineno = 1;
+  line_length_error = FALSE;
 
 loop:
-    switch(ch = getc(fp)) {
-  case EOF:
+  switch(ch = getc(fp)) {
+    case EOF:
       return;
-
-  case '\n':
+    case '\n':
       lineno++;
-
-  case ' ': case '\t': case '\f': case '\r':
+    case ' ':
+    case '\t':
+    case '\f':
+    case '\r':
       break;
-
-  case '#':
+    case '#':
       (void) ungetc(ch, fp);
       skip_line(fp, stdout, echo_comments);
       break;
-
-  case '.':
+    case '.':
       /* .i gives the cube input size (binary-functions only) */
       if (equal(get_word(fp, word), "i")) {
-    if (cube.fullset != NULL) {
-        fprintf(stderr, "extra .i ignored\n");
-        skip_line(fp, stdout, /* echo */ FALSE);
-    } else {
-        if (fscanf(fp, "%d", &cube.num_binary_vars) != 1)
-      fatal("error reading .i");
-        cube.num_vars = cube.num_binary_vars + 1;
-        cube.part_size = ALLOC(int, cube.num_vars);
-    }
+        if (cube.fullset != NULL) {
+          fprintf(stderr, "extra .i ignored\n");
+          skip_line(fp, stdout, /* echo */ FALSE);
+        } else {
+          if (fscanf(fp, "%d", &cube.num_binary_vars) != 1)
+            fatal("error reading .i");
 
+          cube.num_vars = cube.num_binary_vars + 1;
+          cube.part_size = ALLOC(int, cube.num_vars);
+        }
       /* .o gives the cube output size (binary-functions only) */
       } else if (equal(word, "o")) {
-    if (cube.fullset != NULL) {
-        fprintf(stderr, "extra .o ignored\n");
-        skip_line(fp, stdout, /* echo */ FALSE);
-    } else {
-        if (cube.part_size == NULL)
-      fatal(".o cannot appear before .i");
-        if (fscanf(fp, "%d", &(cube.part_size[cube.num_vars-1]))!=1)
-      fatal("error reading .o");
-        cube_setup();
-        PLA_labels(PLA);
-    }
+        if (cube.fullset != NULL) {
+          fprintf(stderr, "extra .o ignored\n");
+          skip_line(fp, stdout, /* echo */ FALSE);
+        } else {
+          if (cube.part_size == NULL)
+            fatal(".o cannot appear before .i");
 
+          if (fscanf(fp, "%d", &(cube.part_size[cube.num_vars-1]))!=1)
+            fatal("error reading .o");
+
+          cube_setup();
+          PLA_labels(PLA);
+        }
       /* .mv gives the cube size for a multiple-valued function */
       } else if (equal(word, "mv")) {
-    if (cube.fullset != NULL) {
-        fprintf(stderr, "extra .mv ignored\n");
-        skip_line(fp, stdout, /* echo */ FALSE);
-    } else {
-        if (cube.part_size != NULL)
-      fatal("cannot mix .i and .mv");
-        if (fscanf(fp,"%d %d",
-      &cube.num_vars,&cube.num_binary_vars) != 2)
-       fatal("error reading .mv");
-        if (cube.num_binary_vars < 0)
-fatal("num_binary_vars (second field of .mv) cannot be negative");
-        if (cube.num_vars < cube.num_binary_vars)
-      fatal(
-"num_vars (1st field of .mv) must exceed num_binary_vars (2nd field of .mv)");
-        cube.part_size = ALLOC(int, cube.num_vars);
-        for(var=cube.num_binary_vars; var < cube.num_vars; var++)
-      if (fscanf(fp, "%d", &(cube.part_size[var])) != 1)
-          fatal("error reading .mv");
-        cube_setup();
-        PLA_labels(PLA);
-    }
+        if (cube.fullset != NULL) {
+          fprintf(stderr, "extra .mv ignored\n");
+          skip_line(fp, stdout, /* echo */ FALSE);
+        } else {
+          if (cube.part_size != NULL)
+            fatal("cannot mix .i and .mv");
 
+          if (fscanf(fp,"%d %d", &cube.num_vars,&cube.num_binary_vars) != 2)
+            fatal("error reading .mv");
+
+          if (cube.num_binary_vars < 0)
+            fatal("num_binary_vars (second field of .mv) cannot be negative");
+
+          if (cube.num_vars < cube.num_binary_vars)
+            fatal("num_vars (1st field of .mv) must exceed num_binary_vars (2nd field of .mv)");
+
+          cube.part_size = ALLOC(int, cube.num_vars);
+
+          for(var=cube.num_binary_vars; var < cube.num_vars; var++)
+            if (fscanf(fp, "%d", &(cube.part_size[var])) != 1)
+              fatal("error reading .mv");
+
+            cube_setup();
+            PLA_labels(PLA);
+        }
       /* .p gives the number of product terms -- we ignore it */
       } else if (equal(word, "p"))
         (void) fscanf(fp, "%d", &np);
       /* .e and .end specify the end of the file */
       else if (equal(word, "e") || equal(word,"end"))
-    return;
+        return;
       /* .kiss turns on the kiss-hack option */
       else if (equal(word, "kiss"))
-    kiss = TRUE;
-
+        kiss = TRUE;
       /* .type specifies a logical type for the PLA */
       else if (equal(word, "type")) {
-    (void) get_word(fp, word);
-    for(i = 0; pla_types[i].key != 0; i++)
-        if (equal(pla_types[i].key + 1, word)) {
-      PLA->pla_type = pla_types[i].value;
-      break;
-        }
-    if (pla_types[i].key == 0)
-        fatal("unknown type in .type command");
+        (void) get_word(fp, word);
 
+        for(i = 0; pla_types[i].key != 0; i++)
+          if (equal(pla_types[i].key + 1, word)) {
+            PLA->pla_type = pla_types[i].value;
+            break;
+          }
+
+        if (pla_types[i].key == 0)
+          fatal("unknown type in .type command");
       /* parse the labels */
       } else if (equal(word, "ilb")) {
-    if (cube.fullset == NULL)
-        fatal("PLA size must be declared before .ilb or .ob");
-    if (PLA->label == NULL)
-        PLA_labels(PLA);
-    for(var = 0; var < cube.num_binary_vars; var++) {
-        (void) get_word(fp, word);
-        i = cube.first_part[var];
-        PLA->label[i+1] = strdup(word);
-        PLA->label[i] = ALLOC(char, strlen(word) + 6);
-        (void) sprintf(PLA->label[i], "%s.bar", word);
-    }
+        if (cube.fullset == NULL)
+          fatal("PLA size must be declared before .ilb or .ob");
+
+        if (PLA->label == NULL)
+          PLA_labels(PLA);
+
+        for(var = 0; var < cube.num_binary_vars; var++) {
+          (void) get_word(fp, word);
+          i = cube.first_part[var];
+          PLA->label[i+1] = strdup(word);
+          PLA->label[i] = ALLOC(char, strlen(word) + 6);
+          (void) sprintf(PLA->label[i], "%s.bar", word);
+        }
       } else if (equal(word, "ob")) {
-    if (cube.fullset == NULL)
-        fatal("PLA size must be declared before .ilb or .ob");
-    if (PLA->label == NULL)
-        PLA_labels(PLA);
-    var = cube.num_vars - 1;
-    for(i = cube.first_part[var]; i <= cube.last_part[var]; i++) {
-        (void) get_word(fp, word);
-        PLA->label[i] = strdup(word);
-    }
+        if (cube.fullset == NULL)
+          fatal("PLA size must be declared before .ilb or .ob");
+
+        if (PLA->label == NULL)
+          PLA_labels(PLA);
+
+        var = cube.num_vars - 1;
+        for(i = cube.first_part[var]; i <= cube.last_part[var]; i++) {
+          (void) get_word(fp, word);
+          PLA->label[i] = strdup(word);
+        }
       /* .label assigns labels to multiple-valued variables */
       } else if (equal(word, "label")) {
-    if (cube.fullset == NULL)
-        fatal("PLA size must be declared before .label");
-    if (PLA->label == NULL)
-        PLA_labels(PLA);
-    if (fscanf(fp, "var=%d", &var) != 1)
-        fatal("Error reading labels");
-    for(i = cube.first_part[var]; i <= cube.last_part[var]; i++) {
-        (void) get_word(fp, word);
-        PLA->label[i] = strdup(word);
-    }
+        if (cube.fullset == NULL)
+          fatal("PLA size must be declared before .label");
 
+        if (PLA->label == NULL)
+          PLA_labels(PLA);
+
+        if (fscanf(fp, "var=%d", &var) != 1)
+          fatal("Error reading labels");
+
+        for(i = cube.first_part[var]; i <= cube.last_part[var]; i++) {
+          (void) get_word(fp, word);
+          PLA->label[i] = strdup(word);
+        }
       } else if (equal(word, "symbolic")) {
-    symbolic_t *newlist, *p1;
-    if (read_symbolic(fp, PLA, word, &newlist)) {
-        if (PLA->symbolic == NIL(symbolic_t)) {
-      PLA->symbolic = newlist;
-        } else {
-      for(p1=PLA->symbolic;p1->next!=NIL(symbolic_t);
-          p1=p1->next){
-      }
-      p1->next = newlist;
-        }
-    } else {
-        fatal("error reading .symbolic");
-    }
+        symbolic_t *newlist, *p1;
 
+        if (read_symbolic(fp, PLA, word, &newlist)) {
+          if (PLA->symbolic == NIL(symbolic_t)) {
+            PLA->symbolic = newlist;
+          } else {
+            for(p1=PLA->symbolic;p1->next!=NIL(symbolic_t); p1=p1->next);
+            p1->next = newlist;
+          }
+        } else {
+          fatal("error reading .symbolic");
+        }
       } else if (equal(word, "symbolic-output")) {
-    symbolic_t *newlist, *p1;
-    if (read_symbolic(fp, PLA, word, &newlist)) {
-        if (PLA->symbolic_output == NIL(symbolic_t)) {
-      PLA->symbolic_output = newlist;
-        } else {
-      for(p1=PLA->symbolic_output;p1->next!=NIL(symbolic_t);
-          p1=p1->next){
-      }
-      p1->next = newlist;
-        }
-    } else {
-        fatal("error reading .symbolic-output");
-    }
+        symbolic_t *newlist, *p1;
 
+        if (read_symbolic(fp, PLA, word, &newlist)) {
+          if (PLA->symbolic_output == NIL(symbolic_t)) {
+            PLA->symbolic_output = newlist;
+          } else {
+            for(p1=PLA->symbolic_output;p1->next!=NIL(symbolic_t);p1=p1->next);
+            p1->next = newlist;
+          }
+        } else {
+          fatal("error reading .symbolic-output");
+        }
       /* .phase allows a choice of output phases */
       } else if (equal(word, "phase")) {
-    if (cube.fullset == NULL)
-        fatal("PLA size must be declared before .phase");
-    if (PLA->phase != NULL) {
-        fprintf(stderr, "extra .phase ignored\n");
-        skip_line(fp, stdout, /* echo */ FALSE);
-    } else {
-        do ch = getc(fp); while (ch == ' ' || ch == '\t');
-        (void) ungetc(ch, fp);
-        PLA->phase = set_save(cube.fullset);
-        last = cube.last_part[cube.num_vars - 1];
-        for(i=cube.first_part[cube.num_vars - 1]; i <= last; i++)
-      if ((ch = getc(fp)) == '0')
-          set_remove(PLA->phase, i);
-      else if (ch != '1')
-          fatal("only 0 or 1 allowed in phase description");
-    }
+        if (cube.fullset == NULL)
+          fatal("PLA size must be declared before .phase");
 
+        if (PLA->phase != NULL) {
+          fprintf(stderr, "extra .phase ignored\n");
+          skip_line(fp, stdout, /* echo */ FALSE);
+        } else {
+          do ch = getc(fp); while (ch == ' ' || ch == '\t');
+          (void) ungetc(ch, fp);
+          PLA->phase = set_save(cube.fullset);
+          last = cube.last_part[cube.num_vars - 1];
+
+          for(i=cube.first_part[cube.num_vars - 1]; i <= last; i++)
+            if ((ch = getc(fp)) == '0')
+              set_remove(PLA->phase, i);
+            else if (ch != '1')
+              fatal("only 0 or 1 allowed in phase description");
+        }
       /* .pair allows for bit-pairing input variables */
       } else if (equal(word, "pair")) {
-    int j;
-    if (PLA->pair != NULL) {
-        fprintf(stderr, "extra .pair ignored\n");
-    } else {
-        ppair pair;
-        PLA->pair = pair = ALLOC(pair_t, 1);
-        if (fscanf(fp, "%d", &(pair->cnt)) != 1)
-      fatal("syntax error in .pair");
-        pair->var1 = ALLOC(int, pair->cnt);
-        pair->var2 = ALLOC(int, pair->cnt);
-        for(i = 0; i < pair->cnt; i++) {
-      (void) get_word(fp, word);
-      if (word[0] == '(') (void) strcpy(word, word+1);
-      if (label_index(PLA, word, &var, &j)) {
-          pair->var1[i] = var+1;
-      } else {
-          fatal("syntax error in .pair");
-      }
+        int j;
 
-      (void) get_word(fp, word);
-      if (word[strlen(word)-1] == ')') {
-          word[strlen(word)-1]='\0';
-      }
-      if (label_index(PLA, word, &var, &j)) {
-          pair->var2[i] = var+1;
-      } else {
-          fatal("syntax error in .pair");
-      }
+        if (PLA->pair != NULL) {
+          fprintf(stderr, "extra .pair ignored\n");
+        } else {
+          ppair pair;
+          PLA->pair = pair = ALLOC(pair_t, 1);
+
+          if (fscanf(fp, "%d", &(pair->cnt)) != 1)
+            fatal("syntax error in .pair");
+
+          pair->var1 = ALLOC(int, pair->cnt);
+          pair->var2 = ALLOC(int, pair->cnt);
+
+          for(i = 0; i < pair->cnt; i++) {
+            (void) get_word(fp, word);
+
+            if (word[0] == '(') (void) strcpy(word, word+1);
+
+            if (label_index(PLA, word, &var, &j)) {
+              pair->var1[i] = var+1;
+            } else {
+              fatal("syntax error in .pair");
+            }
+
+            (void) get_word(fp, word);
+
+            if (word[strlen(word)-1] == ')') {
+              word[strlen(word)-1]='\0';
+            }
+
+            if (label_index(PLA, word, &var, &j)) {
+              pair->var2[i] = var+1;
+            } else {
+              fatal("syntax error in .pair");
+            }
+          }
         }
-    }
-
       } else {
-    if (echo_unknown_commands)
-        printf("%c%s ", ch, word);
-    skip_line(fp, stdout, echo_unknown_commands);
+        if (echo_unknown_commands)
+          printf("%c%s ", ch, word);
+
+        skip_line(fp, stdout, echo_unknown_commands);
       }
       break;
-  default:
+    default:
       (void) ungetc(ch, fp);
+
       if (cube.fullset == NULL) {
-/*		fatal("unknown PLA size, need .i/.o or .mv");*/
-    if (echo_comments)
-        putchar('#');
-    skip_line(fp, stdout, echo_comments);
-    break;
+        /*		fatal("unknown PLA size, need .i/.o or .mv");*/
+        if (echo_comments)
+          putchar('#');
+        skip_line(fp, stdout, echo_comments);
+        break;
       }
+
       if (PLA->F == NULL) {
-    PLA->F = new_cover(10);
-    PLA->D = new_cover(10);
-    PLA->R = new_cover(10);
+        PLA->F = new_cover(10);
+        PLA->D = new_cover(10);
+        PLA->R = new_cover(10);
       }
+
       read_cube(fp, PLA);
     }
-    goto loop;
+
+  goto loop;
 }
+
 /*
     read_pla -- read a PLA from a file
 
@@ -479,104 +497,111 @@ fatal("num_binary_vars (second field of .mv) cannot be negative");
   > 0	 : Operation successful
 */
 
-int read_pla(FILE *fp, int needs_dcset, int needs_offset, int pla_type, pPLA *PLA_return)
-{
-    pPLA PLA;
-    int i, second, third;
-    long time;
-    cost_t cost;
+int read_pla(FILE *fp, int needs_dcset, int needs_offset, int pla_type, pPLA *PLA_return) {
+  pPLA PLA;
+  int i, second, third;
+  long time;
+  cost_t cost;
 
-    /* Allocate and initialize the PLA structure */
-    PLA = *PLA_return = new_PLA();
-    PLA->pla_type = pla_type;
+  /* Allocate and initialize the PLA structure */
+  PLA = *PLA_return = new_PLA();
+  PLA->pla_type = pla_type;
 
-    /* Read the pla */
-    time = ptime();
-    parse_pla(fp, PLA);
+  /* Read the pla */
+  time = ptime();
+  parse_pla(fp, PLA);
 
-    /* Check for nothing on the file -- implies reached EOF */
-    if (PLA->F == NULL) {
-  return EOF;
-    }
+  /* Check for nothing on the file -- implies reached EOF */
+  if (PLA->F == NULL) {
+    return EOF;
+  }
 
-    /* This hack merges the next-state field with the outputs */
-    for(i = 0; i < cube.num_vars; i++) {
-  cube.part_size[i] = ABS(cube.part_size[i]);
-    }
-    if (kiss) {
-  third = cube.num_vars - 3;
-  second = cube.num_vars - 2;
-  if (cube.part_size[third] != cube.part_size[second]) {
+  /* This hack merges the next-state field with the outputs */
+  for(i = 0; i < cube.num_vars; i++) {
+    cube.part_size[i] = ABS(cube.part_size[i]);
+  }
+
+  if (kiss) {
+    third = cube.num_vars - 3;
+    second = cube.num_vars - 2;
+
+    if (cube.part_size[third] != cube.part_size[second]) {
       fprintf(stderr," with .kiss option, third to last and second\n");
       fprintf(stderr, "to last variables must be the same size.\n");
       return EOF;
-  }
-  for(i = 0; i < cube.part_size[second]; i++) {
+    }
+
+    for(i = 0; i < cube.part_size[second]; i++) {
       PLA->label[i + cube.first_part[second]] =
-    strdup(PLA->label[i + cube.first_part[third]]);
+      strdup(PLA->label[i + cube.first_part[third]]);
+    }
+
+    cube.part_size[second] += cube.part_size[cube.num_vars-1];
+    cube.num_vars--;
+    setdown_cube();
+    cube_setup();
   }
-  cube.part_size[second] += cube.part_size[cube.num_vars-1];
-  cube.num_vars--;
-  setdown_cube();
-  cube_setup();
-    }
 
-    if (trace) {
-  totals(time, READ_TIME, PLA->F, &cost);
-    }
+  if (trace) {
+    totals(time, READ_TIME, PLA->F, &cost);
+  }
 
-    /* Decide how to break PLA into ON-set, OFF-set and DC-set */
-    time = ptime();
-    if (pos || PLA->phase != NULL || PLA->symbolic_output != NIL(symbolic_t)) {
-  needs_offset = TRUE;
-    }
-    if (needs_offset && (PLA->pla_type==F_type || PLA->pla_type==FD_type)) {
-  free_cover(PLA->R);
-  PLA->R = complement(cube2list(PLA->F, PLA->D));
-    } else if (needs_dcset && PLA->pla_type == FR_type) {
-  pcover X;
-  free_cover(PLA->D);
-  /* hack, why not? */
-  X = d1merge(sf_join(PLA->F, PLA->R), cube.num_vars - 1);
-  PLA->D = complement(cube1list(X));
-  free_cover(X);
-    } else if (PLA->pla_type == R_type || PLA->pla_type == DR_type) {
-  free_cover(PLA->F);
-  PLA->F = complement(cube2list(PLA->D, PLA->R));
-    }
+  /* Decide how to break PLA into ON-set, OFF-set and DC-set */
+  time = ptime();
+  if (pos || PLA->phase != NULL || PLA->symbolic_output != NIL(symbolic_t)) {
+    needs_offset = TRUE;
+  }
 
-    if (trace) {
-  totals(time, COMPL_TIME, PLA->R, &cost);
-    }
+  if (needs_offset && (PLA->pla_type==F_type || PLA->pla_type==FD_type)) {
+    free_cover(PLA->R);
+    PLA->R = complement(cube2list(PLA->F, PLA->D));
+  } else if (needs_dcset && PLA->pla_type == FR_type) {
+    pcover X;
+    free_cover(PLA->D);
 
-    /* Check for phase rearrangement of the functions */
-    if (pos) {
-  pcover onset = PLA->F;
-  PLA->F = PLA->R;
-  PLA->R = onset;
-  PLA->phase = new_cube();
-  set_diff(PLA->phase, cube.fullset, cube.var_mask[cube.num_vars-1]);
-    } else if (PLA->phase != NULL) {
-  (void) set_phase(PLA);
-    }
+    /* hack, why not? */
+    X = d1merge(sf_join(PLA->F, PLA->R), cube.num_vars - 1);
+    PLA->D = complement(cube1list(X));
+    free_cover(X);
+  } else if (PLA->pla_type == R_type || PLA->pla_type == DR_type) {
+    free_cover(PLA->F);
+    PLA->F = complement(cube2list(PLA->D, PLA->R));
+  }
 
-    /* Setup minimization for two-bit decoders */
-    if (PLA->pair != (ppair) NULL) {
-  set_pair(PLA);
-    }
+  if (trace) {
+    totals(time, COMPL_TIME, PLA->R, &cost);
+  }
 
-    if (PLA->symbolic != NIL(symbolic_t)) {
-  EXEC(map_symbolic(PLA), "MAP-INPUT  ", PLA->F);
-    }
-    if (PLA->symbolic_output != NIL(symbolic_t)) {
-  EXEC(map_output_symbolic(PLA), "MAP-OUTPUT ", PLA->F);
-  if (needs_offset) {
+  /* Check for phase rearrangement of the functions */
+  if (pos) {
+    pcover onset = PLA->F;
+    PLA->F = PLA->R;
+    PLA->R = onset;
+    PLA->phase = new_cube();
+    set_diff(PLA->phase, cube.fullset, cube.var_mask[cube.num_vars-1]);
+  } else if (PLA->phase != NULL) {
+    (void) set_phase(PLA);
+  }
+
+  /* Setup minimization for two-bit decoders */
+  if (PLA->pair != (ppair) NULL) {
+    set_pair(PLA);
+  }
+
+  if (PLA->symbolic != NIL(symbolic_t)) {
+    EXEC(map_symbolic(PLA), "MAP-INPUT  ", PLA->F);
+  }
+
+  if (PLA->symbolic_output != NIL(symbolic_t)) {
+    EXEC(map_output_symbolic(PLA), "MAP-OUTPUT ", PLA->F);
+
+    if (needs_offset) {
       free_cover(PLA->R);
-EXECUTE(PLA->R=complement(cube2list(PLA->F,PLA->D)), COMPL_TIME, PLA->R, cost);
-  }
+      EXECUTE(PLA->R=complement(cube2list(PLA->F,PLA->D)), COMPL_TIME, PLA->R, cost);
     }
+  }
 
-    return 1;
+  return 1;
 }
 
 void PLA_summary(pPLA PLA)
@@ -658,51 +683,64 @@ void PLA_labels(pPLA PLA)
 
 void free_PLA(pPLA PLA)
 {
-    symbolic_list_t *p2, *p2next;
-    symbolic_t *p1, *p1next;
-    int i;
+  symbolic_list_t *p2, *p2next;
+  symbolic_t *p1, *p1next;
+  int i;
 
-    if (PLA->F != (pcover) NULL)
-  free_cover(PLA->F);
-    if (PLA->R != (pcover) NULL)
-  free_cover(PLA->R);
-    if (PLA->D != (pcover) NULL)
-  free_cover(PLA->D);
-    if (PLA->phase != (pcube) NULL)
-  free_cube(PLA->phase);
-    if (PLA->pair != (ppair) NULL) {
-  FREE(PLA->pair->var1);
-  FREE(PLA->pair->var2);
-  FREE(PLA->pair);
-    }
-    if (PLA->label != NULL) {
-  for(i = 0; i < cube.size; i++)
+  if (PLA->F != (pcover) NULL)
+    free_cover(PLA->F);
+
+  if (PLA->R != (pcover) NULL)
+    free_cover(PLA->R);
+
+  if (PLA->D != (pcover) NULL)
+    free_cover(PLA->D);
+
+  if (PLA->phase != (pcube) NULL)
+    free_cube(PLA->phase);
+
+  if (PLA->pair != (ppair) NULL) {
+    FREE(PLA->pair->var1);
+    FREE(PLA->pair->var2);
+    FREE(PLA->pair);
+  }
+
+  if (PLA->label != NULL) {
+    for(i = 0; i < cube.size; i++)
       if (PLA->label[i] != NULL)
-    FREE(PLA->label[i]);
-  FREE(PLA->label);
-    }
-    if (PLA->filename != NULL) {
-  FREE(PLA->filename);
-    }
-    for(p1 = PLA->symbolic; p1 != NIL(symbolic_t); p1 = p1next) {
-  for(p2 = p1->symbolic_list; p2 != NIL(symbolic_list_t); p2 = p2next) {
+        FREE(PLA->label[i]);
+
+    FREE(PLA->label);
+  }
+
+  if (PLA->filename != NULL) {
+    FREE(PLA->filename);
+  }
+
+  for(p1 = PLA->symbolic; p1 != NIL(symbolic_t); p1 = p1next) {
+    for(p2 = p1->symbolic_list; p2 != NIL(symbolic_list_t); p2 = p2next) {
       p2next = p2->next;
       FREE(p2);
-  }
-  p1next = p1->next;
-  FREE(p1);
     }
-    PLA->symbolic = NIL(symbolic_t);
-    for(p1 = PLA->symbolic_output; p1 != NIL(symbolic_t); p1 = p1next) {
-  for(p2 = p1->symbolic_list; p2 != NIL(symbolic_list_t); p2 = p2next) {
+
+    p1next = p1->next;
+    FREE(p1);
+  }
+
+  PLA->symbolic = NIL(symbolic_t);
+
+  for(p1 = PLA->symbolic_output; p1 != NIL(symbolic_t); p1 = p1next) {
+    for(p2 = p1->symbolic_list; p2 != NIL(symbolic_list_t); p2 = p2next) {
       p2next = p2->next;
       FREE(p2);
-  }
-  p1next = p1->next;
-  FREE(p1);
     }
-    PLA->symbolic_output = NIL(symbolic_t);
-    FREE(PLA);
+
+    p1next = p1->next;
+    FREE(p1);
+  }
+
+  PLA->symbolic_output = NIL(symbolic_t);
+  FREE(PLA);
 }
 
 

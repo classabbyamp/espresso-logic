@@ -2,12 +2,14 @@
 #include <node.h>
 #include <nan.h>
 #include <stdlib.h>
-#include "bridge.h"
+
+extern "C" char ** run_espresso(char ** data, unsigned int length);
 
 NAN_METHOD(minimize) {
   v8::Local<v8::Array> array = info[0].As<v8::Array>();
   unsigned int length = array->Length();
   char ** truthTable = new char*[length];
+  v8::Local<v8::Array> returnValue = Nan::New<v8::Array>();
 
   for(unsigned int i = 0; i < length; ++i) {
     v8::Local<v8::String> src = array->Get(i)->ToString();
@@ -19,16 +21,7 @@ NAN_METHOD(minimize) {
   char ** result = run_espresso(truthTable, length);
 
   if (result != NULL) {
-    unsigned int resultLength;
-
-    for (resultLength = 0; result[resultLength] != NULL; ++resultLength);
-
-    v8::Local<v8::Array> returnValue = Nan::New<v8::Array>(resultLength);
-
-    for(unsigned int i = 0; i < length; ++i) delete truthTable[i];
-    delete truthTable;
-
-    for(unsigned int i = 0; i < resultLength; ++i) {
+    for(unsigned int i = 0; result[i] != NULL; ++i) {
       Nan::Set(returnValue, i, Nan::New(result[i]).ToLocalChecked());
 
       // since the result comes from C code, the memory was
@@ -37,10 +30,13 @@ NAN_METHOD(minimize) {
     }
 
     free(result);
-    info.GetReturnValue().Set(returnValue);
   }
 
-  info.GetReturnValue().Set(Nan::New<v8::Array>(0));
+  // memory clean up
+  for(unsigned int i = 0; i < length; delete truthTable[i++]);
+  delete truthTable;
+
+  info.GetReturnValue().Set(returnValue);
 }
 
 NAN_MODULE_INIT(init) {
