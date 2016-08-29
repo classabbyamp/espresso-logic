@@ -105,7 +105,7 @@ var pla = [
     '.e'
   ];
 
-console.log('result = ', espresso(foo));
+console.log('result = ', espresso(pla));
 ```
 
 Here is the result:
