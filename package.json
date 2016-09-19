@@ -1,7 +1,7 @@
 {
   "name": "espresso-logic-minimizer",
   "main": "index.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Sebastien Cottinet (https://github.com/scottinet)",
   "description": "A NodeJS bridge to the Espresso heuristic logic minimizer",
   "scripts": {
@@ -13,10 +13,10 @@
     "url": "git://github.com/scottinet/espresso-logic-minimizer.git"
   },
   "dependencies": {
-    "bindings": "^1.2.1"
+    "bindings": "^1.2.1",
+    "nan": "^2.4.0"
   },
   "devDependencies": {
-    "nan": "^2.4.0",
     "node-gyp": "^3.4.0"
   },
   "engines": {
