@@ -1,7 +1,7 @@
 {
   "name": "espresso-logic-minimizer",
   "main": "index.js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Sebastien Cottinet (https://github.com/scottinet)",
   "description": "A NodeJS bridge to the Espresso heuristic logic minimizer",
   "scripts": {

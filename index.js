@@ -1,5 +1,12 @@
 var EspressoLogicMinimizer = require('bindings')('EspressoLogicMinimizer');
 
+/**
+ * Applies the Espresso Heuristic Logic Minimizer algorithm to the provided
+ * data in PLA format
+ *
+ * @param {Array} data
+ * @returns {Array}
+ */
 function doMinimization(data) {
   var badContent;
 
