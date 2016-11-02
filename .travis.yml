@@ -9,7 +9,7 @@ addons:
     - gcc-4.9
     - g++-4.9
 before_install:
-- export CC="gcc-4.9 -std=c99" CXX="g++-4.9"
+- export CC="gcc-4.9" CXX="g++-4.9"
 deploy:
   provider: npm
   email: seb.cottinet@gmail.com
