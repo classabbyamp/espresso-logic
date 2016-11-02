@@ -2,6 +2,7 @@
     "targets": [
         {
             "target_name": "EspressoLogicMinimizer",
+            "cflags": ["-std=c99"],
             "sources": [
                 "bridge/addon.cc",
                 "bridge/bridge.c",
