@@ -11,27 +11,14 @@
 char ** get_solution(pPLA);
 void add_to_buffer(char **, unsigned int *, unsigned int*, char);
 
-char ** run_espresso(char ** data, unsigned int length) {
-  FILE * tempPLA = tmpfile();
+char ** run_espresso(FILE * fpla) {
   pPLA PLA;
   bool error;
   cost_t cost;
   pcover fold;
   char ** result = NULL;
 
-  if (length == 0) {
-    return NULL;
-  }
-
-  for(unsigned int i = 0; i < length; ++i) {
-    fputs(data[i], tempPLA);
-    fputc('\n', tempPLA);
-  }
-
-  rewind(tempPLA);
-
-  if (read_pla(tempPLA, TRUE, TRUE, FD_type, &PLA) == EOF) {
-    fclose(tempPLA);
+  if (read_pla(fpla, TRUE, TRUE, FD_type, &PLA) == EOF) {
     return NULL;
   }
 
@@ -56,8 +43,45 @@ char ** run_espresso(char ** data, unsigned int length) {
   setdown_cube();             /* free the cube/cdata structure data */
   sf_cleanup();               /* free unused set structures */
   sm_cleanup();               /* sparse matrix cleanup */
+
+  return result;
+}
+
+char ** run_espresso_from_data(char ** data, unsigned int length) {
+  if (length == 0) {
+    return NULL;
+  }
+
+  FILE * tempPLA = tmpfile();
+
+  for(unsigned int i = 0; i < length; ++i) {
+    fputs(data[i], tempPLA);
+    fputc('\n', tempPLA);
+  }
+
+  rewind(tempPLA);
+
+  char ** result = run_espresso(tempPLA);
   fclose(tempPLA);
 
+  return result;
+}
+
+char ** run_espresso_from_path(char * path) {
+  if (strlen(path) == 0) {
+    return NULL;
+  }
+
+  FILE * fpla = fopen(path, "r");
+
+  if (fpla == NULL) {
+    fprintf(stderr, "[Espresso Logic Minimizer] Cannot open file %s\n", path);
+    return NULL;
+  }
+
+  char ** result = run_espresso(fpla);
+
+  fclose(fpla);
   return result;
 }
 

@@ -2,23 +2,40 @@
 
 A NodeJS bridge to the [Espresso heuristic logic minimizer](https://en.wikipedia.org/wiki/Espresso_heuristic_logic_minimizer).
 
-The original source code comes from the [University of California, Berkeley](https://embedded.eecs.berkeley.edu/pubs/downloads/espresso/index.htm), and the C89 version was taken from this attempt of a [Java Espresso Library](https://github.com/Rupan/espresso).
+The original source code comes from the [University of California, Berkeley](https://embedded.eecs.berkeley.edu/pubs/downloads/espresso/index.htm).
 
-# How to use
-
-First, install this library using NPM:
+# Install
 
 `npm install espresso-logic-minimizer`
 
-Then:
+# API
 
-```js
-var espresso = require('espresso-logic-minimizer');
+## minimize(truthTable)
 
-var minifiedResult = espresso(['PLA', 'Content']);
-```
+Static method, minimize the input truth table directly.
+The truth table must be provided as an array of strings following the PLA format (see below).
 
-# Example: simple boolean minification
+Returns an array of strings containing the minimized conditions.
+
+## Espresso(inputSize, outputSize)
+
+Constructor allowing to input the truth table progressively.
+`inputSize` is the number of input conditions, and `outputSize` is the number of output conditions.
+They match, respectively, the `.i` and `.o` parameters of PLA files.
+
+A class instance can only process one PLA.
+
+### push(input, output)
+
+Pushes into the current PLA a truth table entry.
+Both `input` and `output` are arrays of truthy/falsey values.
+
+### minimize()
+
+Ends the current PLA and minimizes it. Subsequent calls will simple return the already computed result.
+Returns an array of strings containing the minimized conditions.
+
+# How to use: simple boolean minification
 
 Take the following boolean conditions:
 
@@ -47,7 +64,12 @@ To do so, start by creating a truth table describing the above boolean condition
 |1|1|1|0|0|
 |1|1|1|1|1|
 
-Then, convert this truth table into PLA format:
+
+## Passing the PLA data directory to espresso
+
+Creating and maintaining a truth table entirely in memory can and will quickly fill up heap space. This way of minimizing PLAs is only to be used on small numbers of input conditions.
+
+To use the in-memory PLA conversion, you first need to convert the truth table above into PLA format:
 
 ```
 # there are 4 input variables
@@ -78,12 +100,12 @@ Then, convert this truth table into PLA format:
 .e
 ```
 
-To use this PLA format with this library, simply store it into an array of strings, and feed it to espresso:
+Then simply store it into an array of strings, and feed it to espresso.
 
 ```js
-var espresso = require('espresso-logic-minimizer');
+const espresso = require('espresso-logic-minimizer');
 
-var pla = [
+const pla = [
     '.i 4',
     '.o 1',
     '0000 0',
@@ -105,13 +127,43 @@ var pla = [
     '.e'
   ];
 
-console.log('result = ', espresso(pla));
+console.log('result = ', espresso.minimize(pla));
 ```
 
-Here is the result:
+## Input the truth table progressively
+
+```js
+const Espresso = require('espresso-logic-minimizer').Espresso;
+
+const espresso = new Espresso(4, 1);
+
+espresso.push([0, 0, 0, 0], [0]);
+espresso.push([0, 0, 0, 1], [1]);
+espresso.push([0, 0, 1, 0], [0]);
+espresso.push([0, 0, 1, 1], [1]);
+espresso.push([0, 1, 0, 0], [0]);
+espresso.push([0, 1, 0, 1], [1]);
+espresso.push([0, 1, 1, 0], [0]);
+espresso.push([0, 1, 1, 1], [1]);
+espresso.push([1, 0, 0, 0], [0]);
+espresso.push([1, 0, 0, 1], [1]);
+espresso.push([1, 0, 1, 0], [0]);
+espresso.push([1, 0, 1, 1], [1]);
+espresso.push([1, 1, 0, 0], [0]);
+espresso.push([1, 1, 0, 1], [0]);
+espresso.push([1, 1, 1, 0], [0]);
+espresso.push([1, 1, 1, 1], [1]);
+
+console.log('result = ', espresso.minimize());
+```
+
+
+## Interpreting the result
+
+Both examples above output the following result:
 
 ```
-result =  [ '0--1 1', '-0-1 1', '--11 1' ]
+result = [ '0--1 1', '-0-1 1', '--11 1' ]
 ```
 
 As explained above, this result is expressed in disjunctive normal form: each array entry contains a set of AND conditions, and a OR condition must be used between entries.
