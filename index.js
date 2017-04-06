@@ -1,6 +1,7 @@
 const
   EspressoLogicMinimizer = require('bindings')('EspressoLogicMinimizer'),
   crypto = require('crypto'),
+  debug = require('debug')('espresso'),
   fs = require('fs'),
   tmp = require('tmp');
 
@@ -37,7 +38,8 @@ class Espresso {
   constructor(inputSize, outputSize) {
     this.result = null;
     this.tmpfile = tmp.fileSync();
-    console.log('TMP FILE CREATED: ', this.tmpfile);
+
+    debug('TMP FILE CREATED: %s', this.tmpfile);
     fs.writeSync(this.tmpfile.fd, '.i ' + inputSize + '\n');
     fs.writeSync(this.tmpfile.fd, '.o ' + outputSize + '\n');
   }
@@ -69,8 +71,8 @@ class Espresso {
     }
 
     fs.closeSync(this.tmpfile.fd);
-    console.log('Providing file to espresso: ', this.tmpfile);
-    console.log('EXISTS: ', fs.existsSync(this.tmpfile.name));
+    debug('Providing file to espresso: ', this.tmpfile);
+    debug('EXISTS: ', fs.existsSync(this.tmpfile.name));
     this.result = EspressoLogicMinimizer.minimize_from_path(this.tmpfile.name);
     this.tmpfile.removeCallback();
 
