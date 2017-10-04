@@ -14,6 +14,6 @@ $(TARGET): $(OBJ)
 	$(LINK.c) $(OBJ) -o $(TARGET)
 
 clean: 
-	@- $(RM) $(TARGET)
+	@- $(RM) -r $(TARGETDIR)
 	@- $(RM) $(OBJ)
 
