@@ -14,7 +14,7 @@ $ make
 The espresso executable will be located in the `bin` directory. Manual pages are available in the `man` directory. Copy these files to your desired location.
 
 ### Package Availability
-This package will be available on the Arch User Repository soon.
+This package is [available](https://aur.archlinux.org/packages/espresso-logic/) on the Arch User Repository.
 
 If you would like to package it for your preferred distribution, you can submit a PR to have it listed here.
 
