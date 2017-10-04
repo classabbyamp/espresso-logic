@@ -1,0 +1,16 @@
+.i 12
+.o 7
+.ilb SRC1s<0> SRC1s<1> SRC1s<2> SRC1s<3> SRC1s<4> CPIPE1s<7> pbusDtoINA SRC2equal16 SRC2equalDST2 opc2load DSTvalid SRC1equalDST2 
+.ob pbusStobusA pSHAtobusA pSHBtobusA preadPSWtoA preadCWPtoA LoadforwtoINB1 LoadforwtoINA1 
+.p 10
+0110110----- 1000100
+1110110----- 1001000
+----010--111 0000001
+1100110----- 0100000
+0100110----- 0010000
+-1---10--111 0000001
+1----10--111 0000001
+-----100111- 0000010
+--1--10--111 0000001
+---1-10--111 0000001
+.e

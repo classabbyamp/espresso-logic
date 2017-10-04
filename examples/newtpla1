@@ -1,0 +1,10 @@
+.i 10
+.o 2
+.ilb CPIPE1s<6> CPIPE1s<0> CPIPE1s<1> CPIPE1s<2> CPIPE1s<3> CPIPE1s<4> CPIPE1s<5> CPIPE1s<7> AIprocessed<31> AIprocessed<30> 
+.ob shiftAbus31 shiftAbus30 
+.p 4
+-01000111- 10
+00-000111- 01
+10100011-1 01
+10-000111- 10
+.e
