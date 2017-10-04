@@ -1,0 +1,15 @@
+.i 10
+.o 4
+.ilb GStrap trapinstr datapagefINT winunderflow winoverflow SWI intTAGtrap illegalopc instrpagefINT IOINT 
+.ob TRAPreason3 TRAPreason2 TRAPreason1 TRAPreason0 
+.p 9
+10000000-- 0111
+--100000-- 0101
+-1000000-- 0110
+0000000001 1001
+----1000-- 0011
+------10-- 0001
+-----100-- 0010
+000000001- 1000
+---10000-- 0100
+.e
