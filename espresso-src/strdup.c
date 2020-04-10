@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef strdup
 char *strdup(const char * src) {
   char * dup;
   unsigned int len;
@@ -18,3 +19,4 @@ char *strdup(const char * src) {
 
   return dup;
 }
+#endif
