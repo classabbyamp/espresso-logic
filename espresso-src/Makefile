@@ -8,7 +8,7 @@ TARGET := $(TARGETDIR)/espresso
 all: prepare $(TARGET)
 
 prepare:
-	mkdir $(TARGETDIR)
+	mkdir -p $(TARGETDIR)
 
 $(TARGET): $(OBJ)
 	$(LINK.c) $(OBJ) -o $(TARGET)
